@@ -66,14 +66,25 @@ class WhoopDataHandler(WhoopHandler):
     Note: '@' symbol is used in the paths to indicate split point for id
     """
 
-    def __init__(self, client: Any, path: str, model: Type[models.UserData], path_single: str = None) -> None:
+    def __init__(
+        self,
+        client: Any,
+        path: str,
+        model: Type[models.UserData],
+        path_single: str = None,
+    ) -> None:
         super().__init__(client)
         self._path = path
         self._path_single = path_single or path + "/@"
         self._model = model
 
     def _get_data(
-        self, path: str, start: str = None, end: str = None, next: str = None, limit: int = 10
+        self,
+        path: str,
+        start: str = None,
+        end: str = None,
+        next: str = None,
+        limit: int = 10,
     ) -> Tuple[Dict, str]:
         """Gets the data from the Whoop API."""
         params = self._params(start, end, next, limit)
@@ -85,7 +96,9 @@ class WhoopDataHandler(WhoopHandler):
         """Converts the given data to a pandas DataFrame."""
         return pd.json_normalize([d.dict() for d in data])
 
-    def _params(self, start: str = None, end: str = None, next: str = None, limit: int = 10) -> Dict[str, Any]:
+    def _params(
+        self, start: str = None, end: str = None, next: str = None, limit: int = 10
+    ) -> Dict[str, Any]:
         # check limit value
         if limit > 25 or limit < 1:
             raise ValueError("Limit must be between 1 and 25.")
@@ -110,7 +123,12 @@ class WhoopDataHandler(WhoopHandler):
         return self._model.from_dict(data)
 
     def collection(
-        self, start: str = None, end: str = None, next: str = None, limit: int = 10, get_all_pages: bool = True
+        self,
+        start: str = None,
+        end: str = None,
+        next: str = None,
+        limit: int = 10,
+        get_all_pages: bool = True,
     ) -> Tuple[List[models.UserData], str]:
         """Gets a collection of data from the Whoop API."""
         recs, token = self._get_data(self._path, start, end, next, limit)
@@ -119,13 +137,20 @@ class WhoopDataHandler(WhoopHandler):
         # get more data if there is a next token
         if get_all_pages:
             while token:
-                data, token = self.collection(start=start, end=end, next=token, limit=limit, get_all_pages=False)
+                data, token = self.collection(
+                    start=start, end=end, next=token, limit=limit, get_all_pages=False
+                )
                 items.extend(data)
 
         return items, token
 
     def collection_df(
-        self, start: str = None, end: str = None, next: str = None, limit: int = 10, get_all_pages: bool = True
+        self,
+        start: str = None,
+        end: str = None,
+        next: str = None,
+        limit: int = 10,
+        get_all_pages: bool = True,
     ) -> Tuple[pd.DataFrame, str]:
         """Gets a collection of data from the Whoop API."""
         recs, token = self.collection(start, end, next, limit, get_all_pages)

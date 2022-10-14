@@ -37,7 +37,7 @@ setup(
     download_url=f"https://github.com/felixnext/whoopy/releases/tag/{__version__}",
     author="Felix Geilert",
     license="MIT License",
-    packages=find_packages(include=["functown", "functown.*"]),
+    packages=find_packages(include=["whoopy", "whoopy.*"]),
     install_requires=required_list,
     setup_requires=["pytest-runner", "flake8"],
     tests_require=["pytest"],

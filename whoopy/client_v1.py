@@ -11,6 +11,7 @@ import webbrowser
 import uuid
 import requests
 import json
+import os
 
 from .handlers import handler_v1 as handlers
 
@@ -39,6 +40,18 @@ class WhoopClient:
         client_id: str = None,
         client_secret: str = None,
     ):
+        """Creates a new WhoopClient.
+
+        Note that when client_id and client_secret are not provided, the refresh function will not work.
+
+        Args:
+            access_token (str): The access token.
+            expires_in (int): The time until the token expires (in seconds).
+            scopes (List[str]): The scopes that the token has.
+            refresh_token (str, optional): The refresh token. Defaults to None.
+            client_id (str, optional): The client ID. Defaults to None.
+            client_secret (str, optional): The client secret. Defaults to None.
+        """
         self.token = access_token
         self.expires_in = expires_in
         self.scopes = scopes
@@ -78,13 +91,28 @@ class WhoopClient:
         )
 
     def store_token(self, path: str):
-        """Stores the token to a file."""
+        """Stores the token to a file.
+
+        Args:
+            path (str): The path to the file (e.g. ".tokens/token.json").
+        """
+        # verify that folder exists
+        base_dir = os.path.dirname(path)
+        os.makedirs(base_dir, exist_ok=True)
+
+        # store the token
         with open(path, "w") as f:
             json.dump(self._token, f)
 
     @classmethod
     def from_token(cls, path: str, client_id: str, client_secret: str) -> Self:
-        """Loads a token from a file."""
+        """Loads a token from a file.
+
+        Args:
+            path (str): The path to the file (e.g. ".tokens/token.json").
+            client_id (str): The client ID.
+            client_secret (str): The client secret.
+        """
         with open(path, "r") as f:
             token = json.load(f)
         client = cls(
@@ -102,7 +130,12 @@ class WhoopClient:
     # retrieves the authorization url
     @classmethod
     def auth_url(
-        cls, client_id: str, client_secret: str, redirect_uri: str, state: str = None, scopes: List[str] = None
+        cls,
+        client_id: str,
+        client_secret: str,
+        redirect_uri: str,
+        state: str = None,
+        scopes: List[str] = None,
     ) -> Tuple[str, str]:
         """Generates authorization url for the Whoop API."""
         # check state
@@ -190,6 +223,14 @@ class WhoopClient:
 
         Note: This requires to copy the code query attribute from the resulting redirect url.
 
+        Args:
+            client_id (str): The client ID.
+            client_secret (str): The client secret.
+            redirect_url (str, optional): The redirect URL. Defaults to "https://jwt.ms/".
+            state (str, optional): The state passed through to the output of request. Defaults to None.
+            scopes (List[str], optional): The scopes to request. Defaults to None.
+                (In case of None, all scopes are requested.)
+
         Returns:
             The client object.
         """
@@ -208,8 +249,11 @@ class WhoopClient:
 
     def refresh(self):
         """Refreshes the token provided."""
+        # verify client is setup correctly
         if self.refresh_token is None:
             raise ValueError("No refresh token provided")
+        if self._client_id is None or self._client_secret is None:
+            raise ValueError("No client id or secret provided")
 
         # generate request using the code
         payload = {
