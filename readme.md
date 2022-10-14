@@ -111,4 +111,7 @@ streamlit run explorer.py
 ```
 
 This should give you the dashboard:
-TODO: images
+![Dashboard](assets/explorer.jpeg)
+
+It also allows you to download your data directly:
+![Download](assets/download.jpeg)

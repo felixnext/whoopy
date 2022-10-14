@@ -130,4 +130,4 @@ dmypy.json
 
 # project specific
 config.json
-.tokens/*
+**/.tokens/*

@@ -9,7 +9,6 @@ import logging
 import math
 import os
 from pathlib import Path
-import sys
 from typing import Tuple, Dict
 import webbrowser
 
@@ -21,7 +20,7 @@ st.set_page_config(page_title="Whoop", page_icon="🏃‍♂️")
 
 # define some paths
 BASE_DIR = Path(os.path.dirname(__file__))
-CONFIG_FILE = BASE_DIR / ".." / "config.json"
+CONFIG_FILE = BASE_DIR / ".." / ".." / "config.json"
 TOKEN_FILE = BASE_DIR / ".tokens" / "whoop_token.json"
 
 # check if files exist
@@ -37,7 +36,7 @@ config_mod_date = os.path.getmtime(CONFIG_FILE)
 @st.cache()
 def load_config(config_mod_date):
     # load config and return
-    config = json.load(open(CONFIG_FILE, "r"))["whoop"]
+    config = json.load(open(CONFIG_FILE, "r"))
     return config
 
 
@@ -230,7 +229,15 @@ with tab_workout:
 
 
 with tab_sleep:
-    pass
+    sleep_nonap_gp = sleep_nonap.copy()
+    sleep_nonap_gp["date"] = sleep_nonap_gp["end"].dt.date
+    sleep_group = sleep_nonap_gp.groupby("date")[
+        "score.sleep_efficiency_percentage"
+    ].mean()
+
+    # display
+    st.header("Sleep Efficiency")
+    st.bar_chart(sleep_group)
 
 with tab_raw:
     raw_data = {
@@ -245,3 +252,17 @@ with tab_raw:
 
     # display data
     st.dataframe(raw_data[select])
+
+    # allow download
+    st.download_button(
+        label="Download as CSV",
+        data=raw_data[select].to_csv().encode("utf-8"),
+        file_name=f"{select}.csv",
+        mime="text/csv",
+    )
+    st.download_button(
+        label="Download as JSON",
+        data=raw_data[select].to_json().encode("utf-8"),
+        file_name=f"{select}.json",
+        mime="application/json",
+    )
