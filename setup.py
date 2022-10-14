@@ -12,7 +12,7 @@ __author__ = "Felix Geilert"
 
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
+with open(os.path.join(this_directory, "readme.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 
@@ -34,7 +34,7 @@ setup(
     long_description_content_type="text/markdown",
     keywords="whoop api",
     url="https://github.com/felixnext/whoopy",
-    download_url=f"https://github.com/felixnext/whoopy/releases/tag/{__version__}",
+    download_url=f"https://github.com/felixnext/whoopy/releases/tag/v{__version__}",
     author="Felix Geilert",
     license="MIT License",
     packages=find_packages(include=["whoopy", "whoopy.*"]),
@@ -44,12 +44,13 @@ setup(
     include_package_data=True,
     zip_safe=False,
     classifiers=[
-        "Development Status :: 3 - Alpha",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+        "Development Status :: 4 - Beta",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
 )
