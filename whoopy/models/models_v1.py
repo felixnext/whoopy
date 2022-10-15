@@ -45,7 +45,9 @@ class UserData(BaseModel):
     def from_dict(cls, data: Dict):
         for dt in ["created_at", "updated_at", "start", "end"]:
             if dt in data:
-                data[dt] = th.any_to_datetime(data[dt])
+                data[dt] = th.any_to_datetime(
+                    datetime.strptime(data[dt], "%Y-%m-%dT%H:%M:%S.%fZ")
+                )
         data = cls._dict_parse(data)
 
         return cls(**data)
