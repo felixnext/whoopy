@@ -146,16 +146,17 @@ user = client.user.profile()
 st.success(f"Logged in as {user.first_name} {user.last_name} ({user.user_id})")
 login_container.empty()
 
-# display tabs
-tab_overview, tab_workout, tab_sleep, tab_raw = st.tabs(
-    ["Overview", "Workout", "Sleep", "Raw Data"]
-)
-
 # load the latest metrics
-baseline_days = 30
+baseline_days = st.slider("Days to load", 1, 180, 30, 1)
+baseline_days = int(baseline_days)
 # get datetime rounded to 10 min
 today = datetime.now().replace(
     second=0, microsecond=0, minute=math.floor(datetime.now().minute / 10) * 10
+)
+
+# display tabs
+tab_overview, tab_workout, tab_sleep, tab_raw = st.tabs(
+    ["Overview", "Workout", "Sleep", "Raw Data"]
 )
 
 
@@ -254,13 +255,14 @@ with tab_raw:
     st.dataframe(raw_data[select])
 
     # allow download
-    st.download_button(
+    cols = st.columns(2)
+    cols[0].download_button(
         label="Download as CSV",
         data=raw_data[select].to_csv().encode("utf-8"),
         file_name=f"{select}.csv",
         mime="text/csv",
     )
-    st.download_button(
+    cols[1].download_button(
         label="Download as JSON",
         data=raw_data[select].to_json().encode("utf-8"),
         file_name=f"{select}.json",

@@ -84,7 +84,7 @@ class WhoopDataHandler(WhoopHandler):
         start: str = None,
         end: str = None,
         next: str = None,
-        limit: int = 10,
+        limit: int = 25,
     ) -> Tuple[Dict, str]:
         """Gets the data from the Whoop API."""
         params = self._params(start, end, next, limit)
@@ -127,7 +127,7 @@ class WhoopDataHandler(WhoopHandler):
         start: str = None,
         end: str = None,
         next: str = None,
-        limit: int = 10,
+        limit: int = 25,
         get_all_pages: bool = True,
     ) -> Tuple[List[models.UserData], str]:
         """Gets a collection of data from the Whoop API."""
@@ -149,7 +149,7 @@ class WhoopDataHandler(WhoopHandler):
         start: str = None,
         end: str = None,
         next: str = None,
-        limit: int = 10,
+        limit: int = 25,
         get_all_pages: bool = True,
     ) -> Tuple[pd.DataFrame, str]:
         """Gets a collection of data from the Whoop API."""
