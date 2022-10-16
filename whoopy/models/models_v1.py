@@ -44,10 +44,9 @@ class UserData(BaseModel):
     @classmethod
     def from_dict(cls, data: Dict):
         for dt in ["created_at", "updated_at", "start", "end"]:
-            if dt in data:
-                data[dt] = th.any_to_datetime(
-                    datetime.strptime(data[dt], "%Y-%m-%dT%H:%M:%S.%fZ")
-                )
+            if dt in data and data[dt] is not None:
+                date = datetime.strptime(data[dt], "%Y-%m-%dT%H:%M:%S.%fZ")
+                data[dt] = th.any_to_datetime(date)
         data = cls._dict_parse(data)
 
         return cls(**data)
