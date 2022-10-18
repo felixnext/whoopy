@@ -1,2 +1,4 @@
 streamlit
 whoopy
+plotly
+matplotlib

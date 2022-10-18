@@ -1,12 +1,17 @@
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 import logging
 
 try:
     # from . import auth
-    from .client_v1 import WhoopClient, API_VERSION
+    from . import models
+    from . import handlers
     from .models.models_v1 import SPORT_IDS
+    from .client_v1 import WhoopClient, API_VERSION
+except Exception as ex:
+    logging.error(f"Error importing whoopy: {ex}")
 
+try:
     # import versions
     from . import client_vu7
     from . import client_v1
