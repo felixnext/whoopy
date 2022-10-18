@@ -13,6 +13,7 @@ from typing import Tuple, Dict
 import webbrowser
 
 import streamlit as st
+import plotly.express as px
 from whoopy import WhoopClient, SPORT_IDS
 
 # Page wide Config
@@ -155,8 +156,8 @@ today = datetime.now().replace(
 )
 
 # display tabs
-tab_overview, tab_workout, tab_sleep, tab_raw = st.tabs(
-    ["Overview", "Workout", "Sleep", "Raw Data"]
+tab_overview, tab_workout, tab_sleep, tab_report, tab_raw = st.tabs(
+    ["Overview", "Workout", "Sleep", "Report", "Raw Data"]
 )
 
 
@@ -239,6 +240,43 @@ with tab_sleep:
     # display
     st.header("Sleep Efficiency")
     st.bar_chart(sleep_group)
+
+with tab_report:
+    # show recovery with lines over the weeks
+    st.header("Recovery")
+    st.subheader("Daily recovery scores with weekly averages")
+    # join recovery with cycle and group recovery by week
+    rec_gp = rec.copy()
+    rec_gp = rec_gp.merge(cycle, right_on="id", left_on="cycle_id", how="inner")
+    rec_gp["week"] = rec_gp["start"].dt.isocalendar().week
+    rec_grouped = rec_gp.groupby("week").agg(
+        mean_score=("score.recovery_score", "mean"),
+        start=("start", "min"),
+        end=("start", "max"),
+    )
+
+    # plot recovery scores against start date as bar chart from rec_gp and color based on recovery score (green = 100)
+    fig = px.bar(
+        rec_gp,
+        x="start",
+        y="score.recovery_score",
+        color="score.recovery_score",
+        color_continuous_scale=px.colors.diverging.RdYlGn,
+    )
+    # plot the weekly means as lines on top from rec_grouped
+    for row in rec_grouped.itertuples():
+        # add a line for each week
+        fig.add_shape(
+            type="line",
+            x0=row.start,
+            y0=row.mean_score,
+            x1=row.end,
+            y1=row.mean_score,
+            line=dict(color="black", width=2),
+        )
+
+    st.plotly_chart(fig)
+
 
 with tab_raw:
     raw_data = {

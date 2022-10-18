@@ -5,13 +5,13 @@ Generated against version 1.0 of the API.
 Copyright 2022 (C) Felix Geilert
 """
 
-from typing import Tuple, List
-from typing_extensions import Self
-import webbrowser
-import uuid
-import requests
 import json
 import os
+import requests
+from typing import Tuple, List
+from typing_extensions import Self
+import uuid
+import webbrowser
 
 from .handlers import handler_v1 as handlers
 

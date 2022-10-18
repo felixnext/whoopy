@@ -4,12 +4,12 @@ Copyright (c) 2022 Felix Geilert
 """
 
 from typing import Any, Dict, List, Tuple, Type
-import requests
 
 import pandas as pd
+import requests
 import time_helper as th
 
-from ..models import models_v1 as models
+from whoopy.models import models_v1 as models
 
 
 class WhoopHandler:
