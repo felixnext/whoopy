@@ -105,7 +105,9 @@ class WhoopClient:
             json.dump(self._token, f)
 
     @classmethod
-    def from_token(cls, path: str, client_id: str, client_secret: str) -> Self:
+    def from_token(
+        cls, path: str, client_id: str, client_secret: str, overwrite_token: bool = True
+    ) -> Self:
         """Loads a token from a file.
 
         Args:
@@ -124,6 +126,10 @@ class WhoopClient:
             client_secret,
         )
         client.refresh()
+
+        # check if token should be updated
+        if overwrite_token is True:
+            client.store_token(path)
 
         return client
 
@@ -273,3 +279,37 @@ class WhoopClient:
 
         # update sess
         self._update_session()
+
+    @classmethod
+    def from_token_or_flow(
+        cls, secret_json: str, token_path: str, scopes: List[str] = None
+    ) -> Self:
+        """Creates a new WhoopClient from a token or by using the authorization flow.
+
+        Args:
+            secret_json (str): The path to the secret JSON file.
+            token_path (str): The path to the token file.
+        """
+        # load the secret
+        with open(secret_json, "r") as f:
+            secret = json.load(f)
+
+        # check if token exists
+        if os.path.exists(token_path):
+            return cls.from_token(
+                token_path,
+                secret["client_id"],
+                secret["client_secret"],
+                overwrite_token=True,
+            )
+
+        # create a new client
+        client = cls.auth_flow(
+            secret["client_id"],
+            secret["client_secret"],
+            secret["redirect_uri"],
+            scopes=scopes,
+        )
+        client.store_token(token_path)
+
+        return client
