@@ -5,7 +5,7 @@ Copyright (c) 2022 Felix Geilert
 
 
 from abc import abstractclassmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict
 from pydantic import BaseModel
 import time_helper as th
@@ -42,11 +42,32 @@ class UserData(BaseModel):
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict):
+    def from_dict(cls, data: Dict, correct_offset: bool = False):
+        # generate timedelta from timezone offset
+        td = timedelta(days=0)
+        if correct_offset and "timezone_offset" in data:
+            to_str = data["timezone_offset"]
+
+            # check if negative
+            negative = to_str[0] == "-"
+            if to_str[0] in ["+", "-"]:
+                to_str = to_str[1:]
+
+            # parse hours and minutes to int
+            hours, minutes = to_str.split(":")
+            hours = int(hours)
+            minutes = int(minutes)
+
+            # generate timedelta
+            td = timedelta(hours=hours, minutes=minutes)
+            if negative:
+                td *= -1
+
+        # update the datetimes
         for dt in ["created_at", "updated_at", "start", "end"]:
             if dt in data and data[dt] is not None:
                 date = datetime.strptime(data[dt], "%Y-%m-%dT%H:%M:%S.%fZ")
-                data[dt] = th.any_to_datetime(date)
+                data[dt] = th.any_to_datetime(date) + td
         data = cls._dict_parse(data)
 
         return cls(**data)
