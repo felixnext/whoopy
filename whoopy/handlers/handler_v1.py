@@ -114,13 +114,13 @@ class WhoopDataHandler(WhoopHandler):
 
         return params
 
-    def single(self, id: int) -> models.UserData:
+    def single(self, id: int, correct_offset: bool = True) -> models.UserData:
         """Gets a single data object from the Whoop API."""
         path = self._path_single.split("@", 1)
         path = f"{path[0]}{id}{path[1] if len(path) > 1 else ''}"
         res = self._get(path)
         data = self._verify(res)
-        return self._model.from_dict(data)
+        return self._model.from_dict(data, correct_offset=correct_offset)
 
     def collection(
         self,
@@ -129,10 +129,11 @@ class WhoopDataHandler(WhoopHandler):
         next: str = None,
         limit: int = 25,
         get_all_pages: bool = True,
+        correct_offset: bool = True,
     ) -> Tuple[List[models.UserData], str]:
         """Gets a collection of data from the Whoop API."""
         recs, token = self._get_data(self._path, start, end, next, limit)
-        items = [self._model.from_dict(c) for c in recs]
+        items = [self._model.from_dict(c, correct_offset=correct_offset) for c in recs]
 
         # get more data if there is a next token
         if get_all_pages:
@@ -151,9 +152,12 @@ class WhoopDataHandler(WhoopHandler):
         next: str = None,
         limit: int = 25,
         get_all_pages: bool = True,
+        correct_offset: bool = True,
     ) -> Tuple[pd.DataFrame, str]:
         """Gets a collection of data from the Whoop API."""
-        recs, token = self.collection(start, end, next, limit, get_all_pages)
+        recs, token = self.collection(
+            start, end, next, limit, get_all_pages, correct_offset
+        )
         df = self._to_df(recs)
 
         return df, token
