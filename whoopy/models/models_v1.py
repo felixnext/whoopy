@@ -3,10 +3,9 @@
 Copyright (c) 2022 Felix Geilert
 """
 
-
-from abc import abstractclassmethod
+from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Any, Optional, Union
 from pydantic import BaseModel
 import time_helper as th
 
@@ -34,11 +33,12 @@ class UserData(BaseModel):
     user_id: int
     created_at: datetime
     updated_at: datetime
-    timezone_offset: str = None
+    timezone_offset: Optional[str] = None
     score_state: str
 
-    @abstractclassmethod
-    def _dict_parse(cls, data: Dict):
+    @classmethod
+    @abstractmethod
+    def _dict_parse(cls, data: Dict) -> Dict[str, Any]:
         return data
 
     @classmethod
@@ -89,11 +89,11 @@ class UserCycle(UserData):
 
     id: int
     start: datetime
-    end: datetime = None
-    score: UserCycleScore = None
+    end: Optional[datetime] = None
+    score: Optional[UserCycleScore] = None
 
     @classmethod
-    def _dict_parse(cls, data: Dict):
+    def _dict_parse(cls, data: Dict) -> Dict[str, Union[Any, UserCycleScore]]:
         if "score" in data and data["score"] is not None:
             data["score"] = UserCycleScore(**data["score"])
 
@@ -125,12 +125,12 @@ class UserSleepNeed(BaseModel):
 class UserSleepScore(BaseModel):
     """Stores the score of the user sleep."""
 
-    stage_summary: UserSleepStages = None
-    sleep_needed: UserSleepNeed = None
-    respiratory_rate: float = None
-    sleep_performance_percentage: float = None
-    sleep_consistency_percentage: float = None
-    sleep_efficiency_percentage: float = None
+    stage_summary: Optional[UserSleepStages] = None
+    sleep_needed: Optional[UserSleepNeed] = None
+    respiratory_rate: Optional[float] = None
+    sleep_performance_percentage: Optional[float] = None
+    sleep_consistency_percentage: Optional[float] = None
+    sleep_efficiency_percentage: Optional[float] = None
 
 
 class UserSleep(UserData):
@@ -139,8 +139,8 @@ class UserSleep(UserData):
     id: int
     nap: bool
     start: datetime
-    end: datetime = None
-    score: UserSleepScore = None
+    end: Optional[datetime] = None
+    score: Optional[UserSleepScore] = None
 
     @classmethod
     def _dict_parse(cls, data: Dict):
@@ -171,8 +171,8 @@ class UserRecoveryScore(BaseModel):
     recovery_score: float
     resting_heart_rate: float
     hrv_rmssd_milli: float
-    spo2_percentage: float = None
-    skin_temp_celsius: float = None
+    spo2_percentage: Optional[float] = None
+    skin_temp_celsius: Optional[float] = None
 
 
 class UserRecovery(UserData):
@@ -183,7 +183,7 @@ class UserRecovery(UserData):
     score: UserRecoveryScore
 
     @classmethod
-    def _dict_parse(cls, data: Dict):
+    def _dict_parse(cls, data: Dict) -> Dict[str, Union[Any, UserRecoveryScore]]:
         if "score" in data and data["score"] is not None:
             data["score"] = UserRecoveryScore(**data["score"])
 
@@ -209,10 +209,10 @@ class UserWorkoutScore(BaseModel):
     max_heart_rate: int
     kilojoule: float
     percent_recorded: float
-    distance_meter: float = None
-    altitude_gain_meter: float = None
-    altitude_change_meter: float = None
-    zone_duration: UserWorkoutZoneDuration = None
+    distance_meter: Optional[float] = None
+    altitude_gain_meter: Optional[float] = None
+    altitude_change_meter: Optional[float] = None
+    zone_duration: Optional[UserWorkoutZoneDuration] = None
 
 
 class UserWorkout(UserData):
@@ -220,9 +220,9 @@ class UserWorkout(UserData):
 
     id: int
     start: datetime
-    end: datetime = None
+    end: Optional[datetime] = None
     sport_id: int
-    score: UserWorkoutScore = None
+    score: Optional[UserWorkoutScore] = None
 
     @classmethod
     def _dict_parse(cls, data: Dict):
@@ -242,103 +242,104 @@ class UserWorkout(UserData):
 
 SPORT_IDS = {
     -1: "Activity",
-    126: "Assault Bike",
-    85: "Australian Football",
-    107: "Barre",
+    0: "Running",
+    1: "Cycling",
     16: "Baseball",
     17: "Basketball",
-    10: "Box Fitness",
-    39: "Boxing",
-    93: "Caddying",
-    46: "Canoeing",
-    113: "Circus Arts",
-    83: "Climber",
-    87: "Coaching",
-    89: "Commuting",
-    100: "Cricket",
-    47: "Cross Country Skiing",
-    1: "Cycling",
-    42: "Dance",
-    73: "Diving",
-    49: "Duathlon",
-    65: "Elliptical",
+    18: "Rowing",
     19: "Fencing",
     20: "Field Hockey",
     21: "Football",
-    48: "Functional Fitness",
-    111: "Gaelic Football",
-    90: "Gaming",
     22: "Golf",
-    51: "Gymnastics",
-    96: "HIIT",
-    109: "High Stress Work",
-    52: "Hiking/Rucking",
-    53: "Horseback Riding",
-    112: "Hurling/Camogie",
-    88: "Ice Bath",
     24: "Ice Hockey",
-    102: "Inline Skating",
-    98: "Jiu Jitsu",
-    54: "Jogging",
-    84: "Jumping Rope",
-    55: "Kayaking",
-    127: "Kickboxing",
     25: "Lacrosse",
-    50: "Machine Workout",
-    99: "Manual Labor",
-    56: "Martial Arts",
-    121: "Massage Therapy",
-    70: "Meditation",
-    92: "Motocross",
-    95: "Motor Racing",
-    57: "Mountain Biking",
-    94: "Obstacle Course Racing",
-    58: "Obstacle Racing",
-    76: "Operations - Flying",
-    75: "Operations - Medical",
-    74: "Operations - Tactical",
-    77: "Operations - Water",
-    71: "Other",
-    131: "Other - Recovery",
-    106: "Paddle Tennis",
-    61: "Paddleboarding",
-    110: "Parkour",
-    101: "Pickleball",
-    43: "Pilates",
-    72: "Pit Practice",
-    67: "Plyometrics",
-    59: "Powerlifting",
-    116: "Resonance Frequency Breathing",
-    60: "Rock Climbing",
-    18: "Rowing",
     27: "Rugby",
-    0: "Running",
     28: "Sailing",
-    69: "Sex",
-    86: "Skateboarding",
     29: "Skiing",
-    91: "Snowboarding",
     30: "Soccer",
     31: "Softball",
-    104: "Spikeball",
-    97: "Spin",
-    68: "Spinning",
     32: "Squash",
-    108: "Stage Performance",
-    66: "Stairmaster",
-    128: "Stretching",
-    64: "Surfing",
     33: "Swimming",
     34: "Tennis",
     35: "Track & Field",
-    62: "Triathlon",
-    82: "Ultimate",
     36: "Volleyball",
-    63: "Walking",
-    125: "Watching Sports",
     37: "Water Polo",
-    45: "Weightlifting",
-    105: "Wheelchair Pushing",
     38: "Wrestling",
+    39: "Boxing",
+    42: "Dance",
+    43: "Pilates",
     44: "Yoga",
+    45: "Weightlifting",
+    47: "Cross Country Skiing",
+    48: "Functional Fitness",
+    49: "Duathlon",
+    51: "Gymnastics",
+    52: "Hiking/Rucking",
+    53: "Horseback Riding",
+    55: "Kayaking",
+    56: "Martial Arts",
+    57: "Mountain Biking",
+    59: "Powerlifting",
+    60: "Rock Climbing",
+    61: "Paddleboarding",
+    62: "Triathlon",
+    63: "Walking",
+    64: "Surfing",
+    65: "Elliptical",
+    66: "Stairmaster",
+    70: "Meditation",
+    71: "Other",
+    73: "Diving",
+    74: "Operations - Tactical",
+    75: "Operations - Medical",
+    76: "Operations - Flying",
+    77: "Operations - Water",
+    82: "Ultimate",
+    83: "Climber",
+    84: "Jumping Rope",
+    85: "Australian Football",
+    86: "Skateboarding",
+    87: "Coaching",
+    88: "Ice Bath",
+    89: "Commuting",
+    90: "Gaming",
+    91: "Snowboarding",
+    92: "Motocross",
+    93: "Caddying",
+    94: "Obstacle Course Racing",
+    95: "Motor Racing",
+    96: "HIIT",
+    97: "Spin",
+    98: "Jiu Jitsu",
+    99: "Manual Labor",
+    100: "Cricket",
+    101: "Pickleball",
+    102: "Inline Skating",
+    103: "Box Fitness",
+    104: "Spikeball",
+    105: "Wheelchair Pushing",
+    106: "Paddle Tennis",
+    107: "Barre",
+    108: "Stage Performance",
+    109: "High Stress Work",
+    110: "Parkour",
+    111: "Gaelic Football",
+    112: "Hurling/Camogie",
+    113: "Circus Arts",
+    121: "Massage Therapy",
+    125: "Watching Sports",
+    126: "Assault Bike",
+    127: "Kickboxing",
+    128: "Stretching",
+    230: "Table Tennis",
+    231: "Badminton",
+    232: "Netball",
+    233: "Sauna",
+    234: "Disc Golf",
+    235: "Yard Work",
+    236: "Air Compression",
+    237: "Percussive Massage",
+    238: "Paintball",
+    239: "Ice Skating",
+    240: "Handball",
 }
