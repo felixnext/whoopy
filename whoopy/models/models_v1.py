@@ -3,10 +3,9 @@
 Copyright (c) 2022 Felix Geilert
 """
 
-
-from abc import abstractclassmethod
+from abc import abstractmethod
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Any
 from pydantic import BaseModel
 import time_helper as th
 
@@ -34,11 +33,12 @@ class UserData(BaseModel):
     user_id: int
     created_at: datetime
     updated_at: datetime
-    timezone_offset: str = None
+    timezone_offset: str | None = None
     score_state: str
 
-    @abstractclassmethod
-    def _dict_parse(cls, data: Dict):
+    @classmethod
+    @abstractmethod
+    def _dict_parse(cls, data: Dict) -> Dict[str, Any]:
         return data
 
     @classmethod
@@ -89,11 +89,11 @@ class UserCycle(UserData):
 
     id: int
     start: datetime
-    end: datetime = None
-    score: UserCycleScore = None
+    end: datetime | None = None
+    score: UserCycleScore | None = None
 
     @classmethod
-    def _dict_parse(cls, data: Dict):
+    def _dict_parse(cls, data: Dict) -> Dict[str, Any | UserCycleScore]:
         if "score" in data and data["score"] is not None:
             data["score"] = UserCycleScore(**data["score"])
 
@@ -125,12 +125,12 @@ class UserSleepNeed(BaseModel):
 class UserSleepScore(BaseModel):
     """Stores the score of the user sleep."""
 
-    stage_summary: UserSleepStages = None
-    sleep_needed: UserSleepNeed = None
-    respiratory_rate: float = None
-    sleep_performance_percentage: float = None
-    sleep_consistency_percentage: float = None
-    sleep_efficiency_percentage: float = None
+    stage_summary: UserSleepStages | None = None
+    sleep_needed: UserSleepNeed | None = None
+    respiratory_rate: float | None = None
+    sleep_performance_percentage: float | None = None
+    sleep_consistency_percentage: float | None = None
+    sleep_efficiency_percentage: float | None = None
 
 
 class UserSleep(UserData):
@@ -139,8 +139,8 @@ class UserSleep(UserData):
     id: int
     nap: bool
     start: datetime
-    end: datetime = None
-    score: UserSleepScore = None
+    end: datetime | None = None
+    score: UserSleepScore | None = None
 
     @classmethod
     def _dict_parse(cls, data: Dict):
@@ -171,8 +171,8 @@ class UserRecoveryScore(BaseModel):
     recovery_score: float
     resting_heart_rate: float
     hrv_rmssd_milli: float
-    spo2_percentage: float = None
-    skin_temp_celsius: float = None
+    spo2_percentage: float | None = None
+    skin_temp_celsius: float | None = None
 
 
 class UserRecovery(UserData):
@@ -183,7 +183,7 @@ class UserRecovery(UserData):
     score: UserRecoveryScore
 
     @classmethod
-    def _dict_parse(cls, data: Dict):
+    def _dict_parse(cls, data: Dict) -> Dict[str, Any | UserRecoveryScore]:
         if "score" in data and data["score"] is not None:
             data["score"] = UserRecoveryScore(**data["score"])
 
@@ -209,10 +209,10 @@ class UserWorkoutScore(BaseModel):
     max_heart_rate: int
     kilojoule: float
     percent_recorded: float
-    distance_meter: float = None
-    altitude_gain_meter: float = None
-    altitude_change_meter: float = None
-    zone_duration: UserWorkoutZoneDuration = None
+    distance_meter: float | None = None
+    altitude_gain_meter: float | None = None
+    altitude_change_meter: float | None = None
+    zone_duration: UserWorkoutZoneDuration | None = None
 
 
 class UserWorkout(UserData):
@@ -220,9 +220,9 @@ class UserWorkout(UserData):
 
     id: int
     start: datetime
-    end: datetime = None
+    end: datetime | None = None
     sport_id: int
-    score: UserWorkoutScore = None
+    score: UserWorkoutScore | None = None
 
     @classmethod
     def _dict_parse(cls, data: Dict):

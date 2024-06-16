@@ -13,6 +13,14 @@ pip install whoopy
 pip install .
 ```
 
+For development you can install the `requirements.txt` or the `env.yaml` conda environment:
+
+```bash
+pip install -r requirements.txt
+# or
+conda env create -f env.yaml
+```
+
 In order to use the API, you will need to register your application [here](https://developer-dashboard.whoop.com/) and
 enter the `client_id`, `client_secret` and `redirect_uri` in the `config.json` file (you can use the template provided in `config.sample.json`):
 
