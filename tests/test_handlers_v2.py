@@ -271,7 +271,7 @@ class TestRecoveryHandler:
                 }
 
                 m.get(
-                    "https://api.prod.whoop.com/developer/v2/activity/recovery/cycle/12345/recovery",
+                    "https://api.prod.whoop.com/developer/v2/cycle/12345/recovery",
                     payload=recovery_data,
                 )
 
