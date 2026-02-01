@@ -119,7 +119,7 @@ class RecoveryHandler(CollectionHandler[models.Recovery]):
         """
         super().__init__(
             client=client,
-            collection_path="activity/recovery",
+            collection_path="recovery",
             model_class=models.Recovery,
             response_class=models.RecoveryCollection,  # type: ignore[arg-type]
         )
@@ -138,7 +138,7 @@ class RecoveryHandler(CollectionHandler[models.Recovery]):
             ResourceNotFoundError: If recovery not found
         """
         try:
-            data = await self._get(f"activity/recovery/cycle/{cycle_id}/recovery")
+            data = await self._get(f"cycle/{cycle_id}/recovery")
             return models.Recovery(**data)
         except Exception as e:
             if "404" in str(e):
